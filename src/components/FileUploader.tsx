@@ -27,11 +27,11 @@ export default function FileUploader(props: FileUploaderProps) {
 
 const styles = StyleSheet.create({
   uploadBtn: {
-    backgroundColor: "#000000",
+    backgroundColor: "#ffffff",
     paddingVertical: 10,
     paddingHorizontal: 10,
   },
   btnTxt: {
-    color: "#ffffff",
+    color: "#000000",
   },
 });

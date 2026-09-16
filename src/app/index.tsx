@@ -2,16 +2,36 @@ import FileUploader from "@/components/FileUploader";
 import * as DocumentPicker from "expo-document-picker";
 import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { File } from 'expo-file-system';
+import parseMIDI from '../lib/parser';
+import { Note } from '../lib/types';
 
 export default function App() {
-  const [file, setFile] = useState<DocumentPicker.DocumentPickerAsset | null>(
+  const [asset, setAsset] = useState<DocumentPicker.DocumentPickerAsset | null>(
     null,
   );
+  const [notes, setNotes] = useState<Note[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileSelected = async (file: DocumentPicker.DocumentPickerAsset) => {
+    setError(null);
+
+    try {
+      const bytes = await new File(file.uri).bytes();
+      const parsedNotes = parseMIDI(bytes); 
+      setAsset(file);
+      setNotes(parsedNotes)
+    } catch {
+      setError("Couldn't read MIDI File");
+    }
+  }
+
   return (
     <View style={styles.container}>
-      <FileUploader onFileSelected={setFile} />
+      <FileUploader onFileSelected={handleFileSelected} />
 
-      {file && <Text>File name: {file.name}</Text>}
+      {asset && <Text style={ {color: 'white'}}>File name: {asset.name} - {notes?.length}</Text>}
+      {error && <Text style={styles.errorMsg}>{error}</Text>}
     </View>
   );
 }
@@ -22,5 +42,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+  },
+  errorMsg: {
+    color: "red",
   },
 });
